@@ -7,8 +7,11 @@ class Enemy:
         self.probability_being_hit = probability_being_hit
 
     def attack_player(self, player):
-        if random.random <= player.probability_being_hit:
+        if random.random() <= player.probability_being_hit:
             player.health -= self.damage
+            print("\nThe enemy hit you!")
+        else:
+            print("\nThe enemy missed you!")    
 
 class Item:
     def __init__(self, name, description, function):
@@ -39,6 +42,7 @@ class Player:
         self.probability_being_hit = probability_being_hit
         self.inventory = []
         self.weapon = None
+    
     def drop_weapon(self, room, weapon):
         room.add_action(("Pick up " + weapon.name), weapon.pickup_function)
         room.add_item(weapon)
@@ -47,9 +51,13 @@ class Player:
         if self.weapon is not None:
             self.drop_weapon(room, weapon)
         self.weapon = weapon
-    def attack_enemy(weapon, enemy):
+    def attack_enemy(self, weapon, enemy):
         if random.random() <= enemy.probability_being_hit:
             enemy.health -= weapon.damage
+            weapon.durability -= 1
+            print("You hit the enemy!")
+        else:
+            print("You missed the enemy!")
     def take_damage(self, damage):
         self.health -= damage
         if self.health < 1:
@@ -71,6 +79,7 @@ class Player:
 def manage_inventory(room, player, text):
     if len(player.inventory) < 1:
         print("\nYou have nothing in your inventory.")
+        return room
     else:
         new_room = None
         while new_room is None:
@@ -164,8 +173,8 @@ def function_name(room, player, text):
     room.remove_action(text)
     return room
 """
-player = Player(100, 100)
-
+player = Player(100, 100, 0.5)
+enemy = Enemy(100, 25, 0.75, "This is a very scary monster.")
 roomA = Room("RoomA", "This is room a.")
 roomB = Room("RoomB", "This is room b")
 
@@ -173,7 +182,14 @@ def combat(player, enemy):
     player_alive = True
     enemy_alive = True
     while player_alive == True and enemy_alive == True:
+        print("ENEMY HEALTH: ", enemy.health)
+        print("PLAYER HEALTH: ", player.health)
         enemy.attack_player(player)
+        input("Press ENTER to continue.")
+        player.attack_enemy(player.weapon, enemy)
+        print("ENEMY HEALTH: ", enemy.health)
+        print("PLAYER HEALTH: ", player.health)
+        input("Press ENTER to continue.")
         
 
 #ROOM A
@@ -190,9 +206,6 @@ def get_key(room, player, text):
     return room
 key = Item("Key", "There is a key.", get_key)
 key.add_dropfunction(drop_item)
-def inv_closet(room, player, text):
-    print("There is nothing in the closet.")
-    return room
 
 def get_food(room, player, text):
     print("You pick up the food.")
@@ -206,8 +219,6 @@ def goto_roomB(room, player, text):
     return roomB
 
 roomA.add_action("Pick up key", get_key)
-
-roomA.add_action("Investigate closet", inv_closet)
 
 roomA.add_action("Pick up food", get_food)
 
@@ -227,6 +238,8 @@ roomB.add_action("Go to room a", goto_roomA)
 player.take_damage(20)
 current_room = roomA
 current_room.describe_room()
+player.set_weapon(sword)
+combat(player, enemy)
 while True:
     print("Health =", player.health)
     new_room = current_room.action_selection(player)
