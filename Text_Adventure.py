@@ -245,15 +245,15 @@ shed = Room("SHED", "")
 library = Room("LIBRARY", "Entering the room, you see that the whole room is full of bookshelves, each full with hundreds of books. To the north and east, there are doors. On the west side of the room, a strange book catches your eye.")
 kitchen = Room("KITCHEN", "When you get into the room, it becomes clear that this is a kitchen. There is an oven, some cabinets, a fridge, and a sink. The the north and west there are doors.")
 secret_room = Room("SECRET ROOM", "Sitting on the floor infront of you, there is a box. Behind you, there is the exit.")
-workshop = Room("WORKSHOP", "In this room, there is a workbench with tools on it, and on the floor, some mangled contrption that looks at though it has been torn arpat")
-halltwo = Room("MIDDLE OF HALL", "DESCRIPTION")
-dining_room = Room("DINING ROOM", "DESCRIPTION")
-bar = Room("BAR", "DESCRIPTION")
-hallthree = Room("END OF HALL", "DESCRIPTION")
-theater = Room("THEATER", "DESCRIPTION")
-upstairshall = Room("UPSTAIRS", "DESCRIPTION")
-bathroom = Room("BATHROOM", "DESCRIPTION")
-bedroom = Room("BEDROOM", "DESCRIPTION")
+workshop = Room("WORKSHOP", "In this room, there is a workbench with tools on it, and on the floor, some mangled contraption that looks at though it has been torn apart. To the east and south there are doors.")
+halltwo = Room("MIDDLE OF HALL", "You are now in the middle of the long hallway. There is nothing special, but there are doors to east and west, and the hall continues to the north and south.")
+dining_room = Room("DINING ROOM", "This room has a very long table yet only two chairs at either end. There are doors to the east, south, and west.")
+bar = Room("BAR", "To the east side of the room, there is a bar. Sitting on top of it, there is a bottle of suspicious liquid. To the west, there is the exit.")
+hallthree = Room("END OF HALL", "This is the end of the hall. to the west, there is a door. To the east, there are stairs. To the south, the hallway continues. Next to the stairs, there is a suit of armor holding a sword.")
+theater = Room("THEATER", "There is a large stage at the back of the room. On the screen, there is a large, yellow number " + combo[1] + ".")
+upstairshall = Room("UPSTAIRS", "This is a hallway at the top of the stairs. There are doors to the east and west, and there are stairs to the north.")
+bathroom = Room("BATHROOM", "This is a bathroom. There is a bathtub, and a cabinet above the sink. To the east there is the exit.")
+bedroom = Room("BEDROOM", "In this room, there is a large bed. Under the covers, there is a lump. To the west, there is the exit.")
 
 #OUTSIDE
 
@@ -431,7 +431,7 @@ def bar_gowest(room, player, text):
         return dining_room
     else:
         return workshop
-bar.add_action("Go west", bar_gowest)
+bar.add_action("Leave", bar_gowest)
 
 #HALLTHREE
 def hallthree_goeast(room, player, text):
@@ -453,7 +453,7 @@ hallthree.add_action("Go west", hallthree_gowest)
 #THEATER
 def theater_goeast(room, player, text):
         return hallthree
-theater.add_action("Go east", theater_goeast)
+theater.add_action("Leave", theater_goeast)
 
 #UPSTAIRS
 def upstairshall_gonorth(room, player, text):
