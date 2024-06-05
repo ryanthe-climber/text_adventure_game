@@ -1,11 +1,12 @@
 import random
 class Enemy:
-    def __init__(self, health, damage, probability_being_hit, name, description):
+    def __init__(self, health, damage, probability_being_hit, killfunc, name, description):
         self.health = health
         self.damage = damage
         self.description = description
         self.probability_being_hit = probability_being_hit
         self.name = name
+        self.killfunc = killfunc
 
     def take_damage(self, damage):
         self.health -= damage
@@ -26,7 +27,8 @@ class Enemy:
         else:
             print("\nThe enemy missed you!")
         return alive  
-
+    def do_killfunc(self, room, player):
+        self.killfunc(room, player)
 class Item:
     def __init__(self, name, description, function):
         self.name = name
@@ -211,7 +213,8 @@ def function_name(room, player, text):
     room.remove_action(text)
     return room
 """
-player = Player(100, 100, 0.5)
+player = Player(100, 100, 0.735)
+
 def combat(room, player):
     enemy = room.enemy
     player_alive = True
@@ -232,16 +235,17 @@ def combat(room, player):
     elif enemy_alive is False:
         print("You killed the enemy!")
         room.remove_enemy()
+        enemy.do_killfunc
 #ROOMS
 combo = str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9))
 
 outside = Room("OUTSIDE" , "About 50 feet north of you, a large, rundown manor sits. Above the front door, a flickering lantern hangs.\nDirectly to the west, there is an old shed, with its door shut.")
 hallone = Room("MANOR ENTRANCE", "To the north, there is a long hall. To the south, there is a door that leads outside. There are doorways on the east and west side of the room.")
-shed = Room("SHED", "This is a shed.")
+shed = Room("SHED", "")
 library = Room("LIBRARY", "Entering the room, you see that the whole room is full of bookshelves, each full with hundreds of books. To the north and east, there are doors. On the west side of the room, a strange book catches your eye.")
-kitchen = Room("KITCHEN", "DESCRIPTION")
+kitchen = Room("KITCHEN", "When you get into the room, it becomes clear that this is a kitchen. There is an oven, some cabinets, a fridge, and a sink. The the north and west there are doors.")
 secret_room = Room("SECRET ROOM", "Sitting on the floor infront of you, there is a box. Behind you, there is the exit.")
-workshop = Room("WORKSHOP", "DESCRIPTION")
+workshop = Room("WORKSHOP", "In this room, there is a workbench with tools on it, and on the floor, some mangled contrption that looks at though it has been torn arpat")
 halltwo = Room("MIDDLE OF HALL", "DESCRIPTION")
 dining_room = Room("DINING ROOM", "DESCRIPTION")
 bar = Room("BAR", "DESCRIPTION")
@@ -278,8 +282,8 @@ def pickup_letteropener(room, player, text):
     return room
 letter_opener = Weapon("Letter Opener", "There is a letter opener on the ground.", pickup_letteropener, 3, 10)
 hallone.add_item(letter_opener)
-
 hallone.add_action("Pick up letter opener", pickup_letteropener)
+
 def hallone_gonorth(room, player, text):
     if player.sanity > 99:
         return halltwo
@@ -354,13 +358,123 @@ def secretroom_leave(room, player, text):
         return library
 secret_room.add_action("Leave room", secretroom_leave)
 def open_box(room, player, text):
-    print("You open the box.")
+    print("Inside the box, painted in old red paint, is the number " + combo[0] + ".")
     return room
 secret_room.add_action("Open box", open_box)
 
 #WORKSHOP
-scaryguy = Enemy(50, 25, 0.75, "SCARY GUY", "He is a very scary guy.")
+def pickup_saw(room, player, text):
+    print("\nYou pick up the saw.")
+    room.remove_item(saw)
+    player.set_weapon(room, saw)
+    room.remove_action(text)
+    return room
+saw = Weapon("Saw", "There is a saw on the ground.", pickup_saw, 5, 20)
+workshop.add_action("Pick up saw", pickup_saw)
+def scaryguy_killfunc(room, player):
+    print("It dropped a saw!")
+    room.add_item(saw)
+scaryguy = Enemy(20, 34, 0.67, scaryguy_killfunc, "SCARY GUY", "He is a very scary guy.")
 workshop.add_enemy(scaryguy)
+
+def workshop_goeast(room, player, text):
+        return halltwo
+workshop.add_action("Go east", workshop_goeast)
+def workshop_gosouth(room, player, text):
+    if player.sanity > 99:
+        return library
+    else:
+        return hallthree
+workshop.add_action("Go south", workshop_gosouth)
+
+#HALLTWO
+def halltwo_gonorth(room, player, text):
+        return hallthree
+halltwo.add_action("Go north", halltwo_gonorth)
+def halltwo_goeast(room, player, text):
+    if player.sanity > 99:
+        return dining_room
+    else:
+        return kitchen
+halltwo.add_action("Go east", halltwo_goeast)
+def halltwo_gosouth(room, player, text):
+    if player.sanity > 99:
+        return hallone
+    else:
+        return bar
+halltwo.add_action("Go south", halltwo_gosouth)
+def halltwo_gowest(room, player, text):
+    if player.sanity > 99:
+        return workshop
+    else:
+        return outside
+halltwo.add_action("Go west", halltwo_gowest)
+
+#DINING ROOM
+
+def dining_room_goeast(room, player, text):
+        return bar
+dining_room.add_action("Go east", dining_room_goeast)
+def dining_room_gosouth(room, player, text):
+        return kitchen
+dining_room.add_action("Go south", dining_room_gosouth)
+def dining_room_gowest(room, player, text):
+    if player.sanity > 99:
+        return halltwo
+    else:
+        return theater
+dining_room.add_action("Go west", dining_room_gowest)
+
+#BAR
+def bar_gowest(room, player, text):
+    if player.sanity > 99:
+        return dining_room
+    else:
+        return workshop
+bar.add_action("Go west", bar_gowest)
+
+#HALLTHREE
+def hallthree_goeast(room, player, text):
+        return upstairshall
+hallthree.add_action("Go upstairs", hallthree_goeast)
+def hallthree_gosouth(room, player, text):
+    if player.sanity > 99:
+        return halltwo
+    else:
+        return dining_room
+hallthree.add_action("Go south", hallthree_gosouth)
+def hallthree_gowest(room, player, text):
+    if player.sanity > 99:
+        return theater
+    else:
+        return library
+hallthree.add_action("Go west", hallthree_gowest)
+
+#THEATER
+def theater_goeast(room, player, text):
+        return hallthree
+theater.add_action("Go east", theater_goeast)
+
+#UPSTAIRS
+def upstairshall_gonorth(room, player, text):
+        return halltwo
+upstairshall.add_action("Go downstairs", upstairshall_gonorth)
+def upstairshall_goeast(room, player, text):
+        return bedroom
+upstairshall.add_action("Go east", upstairshall_goeast)
+def upstairshall_gowest(room, player, text):
+        return bathroom
+upstairshall.add_action("Go west", upstairshall_gowest)
+
+#BATHROOM
+def bathroom_gowest(room, player, text):
+        return upstairshall
+bathroom.add_action("Leave", bathroom_gowest)
+
+#BEDROOM
+def bedroom_goeast(room, player, text):
+        return upstairshall
+bedroom.add_action("Leave", bedroom_goeast)
 
 #GAMELOOP
     #REMOVE
