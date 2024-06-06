@@ -102,10 +102,17 @@ class Player:
             return False
             #GAMEOVER
         return True
+    def take_sanity(self, sanity):
+        self.sanity -= sanity
     def gain_health(self, heal):
         self.health += heal
         if self.health > self.max_health:
             self.health = self.max_health
+    def gain_sanity(self, sanity):
+        if self.sanity > 0:
+            self.sanity += sanity
+            if self.sanity > 100:
+                self.sanity = 100
     def add_inventory(self, item):
         if len(self.inventory) < 5:
             self.inventory.append(item)
@@ -341,6 +348,10 @@ library.add_action("Investigate bookshelf", investigate_bookshelf)
 
 
 #KITCHEN
+def investigate_cabinet(room, player, text):
+    print("There is nothing in the cabinet.")
+    return room
+kitchen.add_action("Investigate cabinet", investigate_cabinet)
 def pickup_fridgefood(room, player, text):
     print("\nYou pick up the food.")
     room.remove_item(fridge_food)
@@ -450,6 +461,21 @@ def dining_room_gowest(room, player, text):
 dining_room.add_action("Go west", dining_room_gowest)
 
 #BAR
+def pickup_bottle(room, player, text):
+    print("\nYou pick up the bottle of suspicious liquid.")
+    room.remove_item(bottle)
+    player.add_inventory(bottle)
+    room.remove_action(text)
+    return room
+bottle = Item("Bottle", "There is a bottle of suspicious liquid.", pickup_bottle)
+bar.add_item(bottle)
+bar.add_action("Pick up bottle", pickup_bottle)
+def use_bottle(room, player, text):
+    player.take_sanity(20)
+    player.remove_inventory(bottle)
+bottle.add_usefunction(use_bottle)
+bottle.add_dropfunction(drop_item)
+
 def bar_gowest(room, player, text):
     if player.sanity > 99:
         return dining_room
@@ -510,7 +536,7 @@ current_room = outside
 current_room.describe_room()
 while True:
     if player.sanity < 100:
-        player.sanity -= 10
+        player.take_sanity(10)
     player.display_stats()
     new_room = current_room.action_selection(player)
     if new_room is not current_room:
