@@ -501,6 +501,11 @@ def hallthree_gowest(room, player, text):
 hallthree.add_action("Go west", hallthree_gowest)
 
 #THEATER
+def meanguy_killfunc(room, player):
+    print("You killed the mean monster.")
+meanguy = Enemy(40, 34, 0.67, meanguy_killfunc, "MEAN MONSTER", "He is really, really mean.")
+theater.add_enemy(meanguy)
+
 def theater_goeast(room, player, text):
         return hallthree
 theater.add_action("Leave", theater_goeast)
