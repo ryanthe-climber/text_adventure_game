@@ -81,7 +81,7 @@ class Player:
         self.weapon = None
     def set_weapon(self, room, weapon):
         if self.weapon is not None:
-            self.drop_weapon(room, weapon)
+            self.drop_weapon(room, self.weapon)
         self.weapon = weapon
     def attack_enemy(self, enemy):
         alive = True
@@ -219,15 +219,16 @@ def combat(room, player):
     enemy = room.enemy
     player_alive = True
     enemy_alive = True
-    while player_alive == True and enemy_alive == True:
-        print("ENEMY HEALTH: ", enemy.health)
-        print("PLAYER HEALTH: ", player.health)
+    while player_alive is True and enemy_alive is True:
         player_alive = enemy.attack_player(player)
-        input("Press ENTER to continue.")
-        enemy_alive = player.attack_enemy(enemy)
-        print("ENEMY HEALTH: ", enemy.health)
         print("PLAYER HEALTH: ", player.health)
-        input("Press ENTER to continue.")
+        if player_alive is True:
+            input("Press ENTER to continue.")
+            print()
+            enemy_alive = player.attack_enemy(enemy)
+            print("ENEMY HEALTH: ", enemy.health)
+            if enemy_alive is True:
+                input("Press ENTER to continue.")
     if player_alive is False:
         print("YOU DIED")
         print("GAME OVER")
@@ -235,7 +236,7 @@ def combat(room, player):
     elif enemy_alive is False:
         print("You killed the enemy!")
         room.remove_enemy()
-        enemy.do_killfunc
+        enemy.do_killfunc(room, player)
 #ROOMS
 combo = str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9)) + str(random.randint(0, 9))
 
@@ -252,7 +253,7 @@ bar = Room("BAR", "To the east side of the room, there is a bar. Sitting on top 
 hallthree = Room("END OF HALL", "This is the end of the hall. to the west, there is a door. To the east, there are stairs. To the south, the hallway continues. Next to the stairs, there is a suit of armor holding a sword.")
 theater = Room("THEATER", "There is a large stage at the back of the room. On the screen, there is a large, yellow number " + combo[1] + ".")
 upstairshall = Room("UPSTAIRS", "This is a hallway at the top of the stairs. There are doors to the east and west, and there are stairs to the north.")
-bathroom = Room("BATHROOM", "This is a bathroom. There is a bathtub, and a cabinet above the sink. To the east there is the exit.")
+bathroom = Room("BATHROOM", "This is a bathroom. There is a large bathtub, and a cabinet above the sink. To the east there is the exit.")
 bedroom = Room("BEDROOM", "In this room, there is a large bed. Under the covers, there is a lump. To the west, there is the exit.")
 
 #OUTSIDE
@@ -280,7 +281,7 @@ def pickup_letteropener(room, player, text):
     player.set_weapon(room, letter_opener)
     room.remove_action(text)
     return room
-letter_opener = Weapon("Letter Opener", "There is a letter opener on the ground.", pickup_letteropener, 3, 10)
+letter_opener = Weapon("Letter Opener", "There is a letter opener on the ground.", pickup_letteropener, 2, 10)
 hallone.add_item(letter_opener)
 hallone.add_action("Pick up letter opener", pickup_letteropener)
 
@@ -364,17 +365,19 @@ secret_room.add_action("Open box", open_box)
 
 #WORKSHOP
 def pickup_saw(room, player, text):
-    print("\nYou pick up the saw.")
+    print("\nYou picked up the saw.")
     room.remove_item(saw)
     player.set_weapon(room, saw)
     room.remove_action(text)
+    #REMOVE
+    print(text)
     return room
 saw = Weapon("Saw", "There is a saw on the ground.", pickup_saw, 5, 20)
 workshop.add_action("Pick up saw", pickup_saw)
 def scaryguy_killfunc(room, player):
     print("It dropped a saw!")
     room.add_item(saw)
-scaryguy = Enemy(20, 34, 0.67, scaryguy_killfunc, "SCARY GUY", "He is a very scary guy.")
+scaryguy = Enemy(20, 34, 0.67, scaryguy_killfunc, "GHOST FACE", "                    \n     ███████████    \n   ██████████████▒  \n  ████████████▓███  \n ▓████████████████░ \n █████████████████▒ \n ██     ████     ██ \n █░     ████     ██ \n ███░ ██████░  ████ \n ████ ███████ ▓████ \n  ▓░  ███████░ ░██  \n   ▓▓         ░▓▒   \n    ██  ░▒  █ █░    \n     ▓ █▓ ░██ ▓     \n       █████▓       \n                    ")
 workshop.add_enemy(scaryguy)
 
 def workshop_goeast(room, player, text):
