@@ -35,13 +35,16 @@ def cleanup_exit(msg):
 combo=list('????')
 
 child.send('\n')
-select_opts([3,2,2,5])
+select_opts([3,2,2])
+print('Starting first combat')
+select_opts([5])
 who = watch_battle()
 if (who=='PLAYER'): cleanup_exit('Player died in first combat')
 
 child.expect(r'Health:\s*(\d+)');
 health = int(child.match[1]);
-if (health < 67): cleanup_exit('Player has too little health to bother continuing')
+if (health < 67): cleanup_exit('Player has too little health ({}) to bother continuing'.format(health))
+#if (health < 67): print('Player has too little health ({}) to bother continuing, but lets try anyway'.format(health))
 
 print('Completed first combat')
 
@@ -52,7 +55,9 @@ if (health <= 75):
   select_opts([1,1,1,'x']);
   heal_after_second_combat=False
 
-select_opts([3,3,5,4,2,2,2])
+select_opts([3,3,5,4,2,2])
+print('Starting second combat')
+select_opts([2])
 who = watch_battle()
 if (who=='PLAYER'): cleanup_exit('Player died in second combat')
 if (heal_after_second_combat):
@@ -60,7 +65,9 @@ if (heal_after_second_combat):
 
 print('Completed second combat')
 
-select_opts([5,4])
+select_opts([5])
+print('Starting third combat')
+select_opts([4])
 who = watch_battle()
 if (who=='PLAYER'): cleanup_exit('Player died in third combat')
 
@@ -88,6 +95,7 @@ print('We now have the full combo, which is '+''.join(combo))
 
 select_opts([1,2,1,'x',2,3,4,1,1,1,'x',2])
 child.expect(r'Enter a four digit combination -->')
+print('Starting final boss combat')
 child.sendline(''.join(combo))
 who = watch_battle()
 if (who=='PLAYER'): cleanup_exit('Player died in final boss combat')
