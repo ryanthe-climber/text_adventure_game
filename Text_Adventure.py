@@ -445,6 +445,20 @@ def halltwo_gowest(room, player, text):
 halltwo.add_action("Go west", halltwo_gowest)
 
 #DINING ROOM
+def pickup_diningfood(room, player, text):
+    print("\nYou pick up the food.")
+    room.remove_item(dining_food)
+    player.add_inventory(dining_food)
+    room.remove_action(text)
+    return room
+dining_food = Item("Food", "There is food on the table.", pickup_diningfood)
+dining_room.add_item(dining_food)
+dining_room.add_action("Pick up the food.", pickup_diningfood)
+def use_diningfood(room, player, text):
+    player.gain_health(25)
+    player.remove_inventory(dining_food)
+dining_food.add_usefunction(use_diningfood)
+dining_food.add_dropfunction(drop_item)
 
 def dining_room_goeast(room, player, text):
         return bar
