@@ -69,7 +69,8 @@ class Player:
         print("Health:", self.health)
         if self.sanity < 1:
             print("Sanity: INSANE")
-        print("Sanity:", self.sanity)
+        else:
+            print("Sanity:", self.sanity)
         if self.weapon is None:
             print("Weapon: None")
         else:
@@ -104,6 +105,8 @@ class Player:
         return True
     def take_sanity(self, sanity):
         self.sanity -= sanity
+        if (self.sanity < 0):
+            self.sanity=0
     def gain_health(self, heal):
         self.health += heal
         if self.health > self.max_health:
@@ -172,7 +175,7 @@ class Room:
     def add_enemy(self, enemy):
         self.enemy = enemy
     def remove_enemy(self):
-        self.monster = None
+        self.enemy = None
     def add_item(self, item):
         self.items_in_room.append(item)
     def remove_item(self, item):
@@ -220,7 +223,7 @@ def function_name(room, player, text):
     room.remove_action(text)
     return room
 """
-player = Player(100, 100, 0.735)
+player = Player(100, 100, 0.5)
 
 def combat(room, player):
     enemy = room.enemy
@@ -252,9 +255,9 @@ outside = Room("OUTSIDE" , "About 50 feet north of you, a large, rundown manor s
 hallone = Room("MANOR ENTRANCE", "To the north, there is a long hall. To the south, there is a door that leads outside. There are doorways on the east and west side of the room.")
 shed = Room("SHED", "")
 library = Room("LIBRARY", "Entering the room, you see that the whole room is full of bookshelves, each full with hundreds of books. To the north and east, there are doors. On the west side of the room, a strange book catches your eye.")
-kitchen = Room("KITCHEN", "When you get into the room, it becomes clear that this is a kitchen. There is an oven, some cabinets, a fridge, and a sink. The the north and west there are doors.")
+kitchen = Room("KITCHEN", "When you get into the room, it becomes clear that this is a kitchen. There is an oven, some cabinets, a fridge, and a sink. To the north and west there are doors.")
 secret_room = Room("SECRET ROOM", "Sitting on the floor infront of you, there is a box. Behind you, there is the exit.")
-workshop = Room("WORKSHOP", "In this room, there is a workbench with tools on it, and on the floor, some mangled contraption that looks at though it has been torn apart. To the east and south there are doors.")
+workshop = Room("WORKSHOP", "In this room, there is a workbench with tools on it, and on the floor, some mangled contraption that looks as though it has been torn apart. To the east and south there are doors.")
 halltwo = Room("MIDDLE OF HALL", "You are now in the middle of the long hallway. There is nothing special, but there are doors to east and west, and the hall continues to the north and south.")
 dining_room = Room("DINING ROOM", "This room has a very long table yet only two chairs at either end. There are doors to the east, south, and west.")
 bar = Room("BAR", "To the east side of the room, there is a bar. Sitting on top of it, there is a bottle of suspicious liquid. To the west, there is the exit.")
@@ -549,7 +552,7 @@ theater.add_action("Leave", theater_goeast)
 
 #UPSTAIRS
 def upstairshall_gonorth(room, player, text):
-        return halltwo
+        return hallthree
 upstairshall.add_action("Go downstairs", upstairshall_gonorth)
 def upstairshall_goeast(room, player, text):
         return bedroom
