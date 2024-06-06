@@ -554,6 +554,27 @@ def upstairshall_gowest(room, player, text):
 upstairshall.add_action("Go west", upstairshall_gowest)
 
 #BATHROOM
+def pickup_pills(room, player, text):
+    print("\nYou pick up the pills.")
+    room.remove_item(pills)
+    player.add_inventory(pills)
+    room.remove_action(text)
+    return room
+pills = Item("Pills", "There are pills.", pickup_pills)
+def use_pills(room, player, text):
+    player.gain_sanity(100)
+    player.remove_inventory(pills)
+pills.add_usefunction(use_pills)
+pills.add_dropfunction(drop_item)
+
+def investigate_bathroom_cabinet(room, player, text):
+    print("You open the cabinet, and inside there are pills.")
+    room.add_item(pills)
+    room.add_action("Pick up the pills.", pickup_pills)
+    room.remove_action(text)
+    return room
+bathroom.add_action("Investigate cabinet", investigate_bathroom_cabinet)
+
 def bathroom_gowest(room, player, text):
         return upstairshall
 bathroom.add_action("Leave", bathroom_gowest)
