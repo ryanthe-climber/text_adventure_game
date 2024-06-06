@@ -319,6 +319,11 @@ def hallone_gowest(room, player, text):
 hallone.add_action("Go west", hallone_gowest)
 
 #SHED
+def boss_killfunc(room, player):
+    print("Dealing one final blow, you feel your head start to spin. You black out. When you wake up, you are in a hospital bed. Your family is surrounding you. It was all a bad dream.")
+    exit()
+boss = Enemy(60, 34, 0.5, boss_killfunc, "ENTITY", "You can sense that something is there, but you can't describe what it is.")
+shed.add_enemy(boss)
 
 #LIBRARY
 def library_gonorth(room, player, text):
@@ -350,7 +355,7 @@ library.add_action("Investigate bookshelf", investigate_bookshelf)
 
 #KITCHEN
 def investigate_cabinet(room, player, text):
-    print("There is nothing in the cabinet.")
+    print("Inside the cabinet, there is a blue number " + combo[3] + ".")
     return room
 kitchen.add_action("Investigate cabinet", investigate_cabinet)
 def pickup_fridgefood(room, player, text):
@@ -580,13 +585,16 @@ def bathroom_gowest(room, player, text):
 bathroom.add_action("Leave", bathroom_gowest)
 
 #BEDROOM
+def investigate_lump(room, player, text):
+    print("You pull back the covers, and underneath is a painting of a large green number " + combo[2] + ".")
+    return room
+bedroom.add_action("Investigate the lump", investigate_lump)
+
 def bedroom_goeast(room, player, text):
         return upstairshall
 bedroom.add_action("Leave", bedroom_goeast)
 
 #GAMELOOP
-    #REMOVE
-print("\nCOMBO IS", combo)
 print("When you open your eyes, you find yourself lying beneath a large oak tree in a dark forest. You search your memory, trying to remember how you got here. Rubbing the large bump on your head and failing to recall, you get up and start walking. You discover that you have nothing on you except your clothes. As you wander through the forest, you see a faint light through the trees. Continuing to push through the densely packed trees, you come upon a clearing.")
 input("\npress enter to continue")
 
