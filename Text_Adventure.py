@@ -87,7 +87,8 @@ class Player:
         alive = True
         if random.random() <= enemy.probability_being_hit:
             if self.weapon is None:
-                weapon_damage = 5
+                #FIXME          5
+                weapon_damage = 100
             else:
                 weapon_damage = self.weapon.damage
                 self.weapon.use(self)
@@ -595,6 +596,8 @@ def bedroom_goeast(room, player, text):
 bedroom.add_action("Leave", bedroom_goeast)
 
 #GAMELOOP
+#FIXME
+print(combo)
 print("When you open your eyes, you find yourself lying beneath a large oak tree in a dark forest. You search your memory, trying to remember how you got here. Rubbing the large bump on your head and failing to recall, you get up and start walking. You discover that you have nothing on you except your clothes. As you wander through the forest, you see a faint light through the trees. Continuing to push through the densely packed trees, you come upon a clearing.")
 input("\npress enter to continue")
 
