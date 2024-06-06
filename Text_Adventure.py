@@ -224,6 +224,7 @@ player = Player(100, 100, 0.735)
 
 def combat(room, player):
     enemy = room.enemy
+    enemy.describe()
     player_alive = True
     enemy_alive = True
     while player_alive is True and enemy_alive is True:
@@ -401,8 +402,6 @@ def pickup_saw(room, player, text):
     room.remove_item(saw)
     player.set_weapon(room, saw)
     room.remove_action(text)
-    #REMOVE
-    print(text)
     return room
 saw = Weapon("Saw", "There is a saw on the ground.", pickup_saw, 5, 20)
 workshop.add_action("Pick up saw", pickup_saw)
@@ -484,6 +483,25 @@ def bar_gowest(room, player, text):
 bar.add_action("Leave", bar_gowest)
 
 #HALLTHREE
+def pickup_sword(room, player, text):
+    print("\nYou picked up the sword.")
+    room.remove_item(sword)
+    player.set_weapon(room, sword)
+    room.remove_action(text)
+    return room
+sword = Weapon("Sword", "There is a sword on the ground.", pickup_sword, 10, 30)
+def knight_killfunc(room, player):
+    print("It dropped a sword!")
+    room.add_item(sword)
+    hallthree.add_action("Pick up sword", pickup_sword)
+knight = Enemy(40, 34, 0.67, knight_killfunc, "SUIT OF ARMOR", "He looks super scary.")
+def try_take_sword(room, player, text):
+    print("You try to pull the sword from the armor, but he starts to move.")
+    room.remove_action(text)
+    hallthree.add_enemy(knight)
+    combat(room, player)
+    return room
+hallthree.add_action("Take the sword", try_take_sword)
 def hallthree_goeast(room, player, text):
         return upstairshall
 hallthree.add_action("Go upstairs", hallthree_goeast)
@@ -547,6 +565,5 @@ while True:
     if new_room is not current_room:
         current_room = new_room
         if current_room.enemy is not None:
-            current_room.enemy.describe()
             combat(current_room, player)
         current_room.describe_room()
