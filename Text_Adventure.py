@@ -107,7 +107,7 @@ class Player:
         if self.health > self.max_health:
             self.health = self.max_health
     def add_inventory(self, item):
-        if len(self.inventory) < 10:
+        if len(self.inventory) < 5:
             self.inventory.append(item)
         else:
             print("\nYour inventory is full.\nDrop an item in order to pick another one up.")
@@ -341,6 +341,27 @@ library.add_action("Investigate bookshelf", investigate_bookshelf)
 
 
 #KITCHEN
+def pickup_fridgefood(room, player, text):
+    print("\nYou pick up the food.")
+    room.remove_item(fridge_food)
+    player.add_inventory(fridge_food)
+    room.remove_action(text)
+    return room
+fridge_food = Item("Food", "There is food in the fridge.", pickup_fridgefood)
+def use_food(room, player, text):
+    player.gain_health(25)
+    player.remove_inventory(fridge_food)
+fridge_food.add_usefunction(use_food)
+fridge_food.add_dropfunction(drop_item)
+
+def investigate_fridge(room, player, text):
+    print("You open the fridge, and inside there is food.")
+    room.add_item(fridge_food)
+    room.add_action("Pick up the food.", pickup_fridgefood)
+    room.remove_action(text)
+    return room
+kitchen.add_action("Investigate fridge", investigate_fridge)
+
 def kitchen_gonorth(room, player, text):
     if player.sanity > 99:
         return dining_room
