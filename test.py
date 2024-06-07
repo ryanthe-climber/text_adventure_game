@@ -2,10 +2,20 @@ import sys
 import pexpect
 import re
 from optparse import OptionParser
+from enum import Enum
 
 parser = OptionParser()
 parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Dump all the output from the game", default=False)
 (opts, args) = parser.parse_args()
+
+PlayProgress = Enum('PlayProgress',[
+                 'DIED_DURING_FIRST_COMBAT',
+                 'ABORTED_AFTER_FIRST_COMBAT',
+                 'DIED_DURING_SECOND_COMBAT',
+                 'DIED_DURING_THIRD_COMBAT',
+                 'DIED_DURING_FINAL_COMBAT',
+                 'WON',
+               ]);
 
 def playthrough():
   def watch_battle(child):
@@ -27,7 +37,6 @@ def playthrough():
     child.close()
     print()
     print(msg)
-    exit()
   
   child = pexpect.spawn('python3 Text_Adventure.py')
   if opts.debug is True:
@@ -40,11 +49,15 @@ def playthrough():
   print('Starting first combat')
   select_opts(child, [5])
   who = watch_battle(child)
-  if (who=='PLAYER'): cleanup_exit(child, 'Player died in first combat')
+  if (who=='PLAYER'):
+    cleanup_exit(child, 'Player died in first combat')
+    return(PlayProgress.DIED_DURING_FIRST_COMBAT)
   
   child.expect(r'Health:\s*(\d+)');
   health = int(child.match[1]);
-  if (health < 67): cleanup_exit(child, 'Player has too little health ({}) to bother continuing'.format(health))
+  if (health < 67):
+    cleanup_exit(child, 'Player has too little health ({}) to bother continuing'.format(health))
+    return(PlayProgress.ABORTED_AFTER_FIRST_COMBAT)
   #if (health < 67): print('Player has too little health ({}) to bother continuing, but lets try anyway'.format(health))
   
   print('Completed first combat')
@@ -61,7 +74,9 @@ def playthrough():
   print('Starting second combat')
   select_opts(child, [2])
   who = watch_battle(child)
-  if (who=='PLAYER'): cleanup_exit(child, 'Player died in second combat')
+  if (who=='PLAYER'):
+    cleanup_exit(child, 'Player died in second combat')
+    return(PlayProgress.DIED_DURING_SECOND_COMBAT)
   print('Completed second combat')
   if (heal_after_second_combat):
     print('Healing after second combat')
@@ -71,7 +86,9 @@ def playthrough():
   print('Starting third combat')
   select_opts(child, [4])
   who = watch_battle(child)
-  if (who=='PLAYER'): cleanup_exit(child, 'Player died in third combat')
+  if (who=='PLAYER'):
+    cleanup_exit(child, 'Player died in third combat')
+    return(PlayProgress.DIED_DURING_THIRD_COMBAT)
   
   print('Completed third combat')
   
@@ -101,8 +118,19 @@ def playthrough():
   print('Starting final boss combat')
   child.sendline(''.join(combo))
   who = watch_battle(child)
-  if (who=='PLAYER'): cleanup_exit(child, 'Player died in final boss combat')
+  if (who=='PLAYER'):
+    cleanup_exit(child, 'Player died in final boss combat')
+    return(PlayProgress.DIED_DURING_FINAL_COMBAT)
   
   print('Completed final boss combat and won the game')
+  return(PlayProgress.WON)
 
-playthrough()
+histogram={x:0 for x in PlayProgress}
+for gamenum in range(0, 100):
+  print('\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+  print('{:^70}\n'.format(gamenum+1))
+  progress=playthrough()
+  histogram[progress] = histogram[progress]+1
+
+for x in PlayProgress:
+    print('{:>27} : {:3d}'.format(x.name, histogram[x]))
