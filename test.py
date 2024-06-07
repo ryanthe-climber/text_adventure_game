@@ -6,11 +6,12 @@ from enum import Enum
 
 parser = OptionParser()
 parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Dump all the output from the game", default=False)
+parser.add_option("-n", "--num-plays", type="int", dest="plays", help="The number of playthroughs to run", default=10)
 (opts, args) = parser.parse_args()
 
 PlayProgress = Enum('PlayProgress',[
                  'DIED_DURING_FIRST_COMBAT',
-                 'ABORTED_AFTER_FIRST_COMBAT',
+#                 'ABORTED_AFTER_FIRST_COMBAT',
                  'DIED_DURING_SECOND_COMBAT',
                  'DIED_DURING_THIRD_COMBAT',
                  'DIED_DURING_FINAL_COMBAT',
@@ -55,9 +56,9 @@ def playthrough():
   
   child.expect(r'Health:\s*(\d+)');
   health = int(child.match[1]);
-  if (health < 67):
-    cleanup_exit(child, 'Player has too little health ({}) to bother continuing'.format(health))
-    return(PlayProgress.ABORTED_AFTER_FIRST_COMBAT)
+  #if (health < 67):
+  #  cleanup_exit(child, 'Player has too little health ({}) to bother continuing'.format(health))
+  #  return(PlayProgress.ABORTED_AFTER_FIRST_COMBAT)
   #if (health < 67): print('Player has too little health ({}) to bother continuing, but lets try anyway'.format(health))
   
   print('Completed first combat')
@@ -126,11 +127,12 @@ def playthrough():
   return(PlayProgress.WON)
 
 histogram={x:0 for x in PlayProgress}
-for gamenum in range(0, 100):
+for gamenum in range(0, opts.plays):
   print('\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
   print('{:^70}\n'.format(gamenum+1))
   progress=playthrough()
   histogram[progress] = histogram[progress]+1
 
+print('\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
 for x in PlayProgress:
     print('{:>27} : {:3d}'.format(x.name, histogram[x]))
