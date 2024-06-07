@@ -50,9 +50,9 @@ def playthrough(num):
   def cleanup_exit(child, msg):
     child.close()
     if (verbose_progress):
-      print()
       print(msg)
     print('Playthrough {} completed'.format(num))
+    if (verbose_progress): print()
 
   print('Playthrough {} starting'.format(num))
   
@@ -80,25 +80,37 @@ def playthrough(num):
   
   progress_msg('Completed first combat')
   
-  select_opts(child, [2,2,3,2])
+  food_eaten=0
+  food_collected=0
   
-  heal_after_second_combat=True
-  if (health <= 75):
+  select_opts(child, [2,2,3,2])
+  food_collected+=1
+
+  if ((health <= 75) and (food_collected > food_eaten)):
     progress_msg('Healing after first combat, because health is {}'.format(health))
     select_opts(child, [1,1,1,'x']);
-    heal_after_second_combat=False
+    food_eaten+=1
   
-  select_opts(child, [3,3,5,4,2,2])
+  select_opts(child, [3,3,5])
+  food_collected+=1
+
+  select_opts(child, [4,2,2])
+
   progress_msg('Starting second combat')
   select_opts(child, [2])
   who = watch_battle(child)
   if (who=='PLAYER'):
     cleanup_exit(child, 'Player died in second combat')
     return(PlayProgress.DIED_DURING_SECOND_COMBAT)
+
+  child.expect(r'Health:\s*(\d+)');
+  health = int(child.match[1]);
   progress_msg('Completed second combat')
-  if (heal_after_second_combat):
-    progress_msg('Healing after second combat')
+
+  if ((health <= 75) and (food_collected > food_eaten)):
+    progress_msg('Healing after second combat, because health is {}'.format(health))
     select_opts(child, [1,1,1,'x']);
+    food_eaten+=1
   
   select_opts(child, [5])
   progress_msg('Starting third combat')
@@ -114,6 +126,14 @@ def playthrough(num):
   child.expect(r'yellow number (\d)');
   combo[1]=child.match[1].decode('ASCII')[0]
   
+  child.expect(r'Health:\s*(\d+)');
+  health = int(child.match[1]);
+
+  if ((health <= 75) and (food_collected > food_eaten)):
+    progress_msg('Healing after second combat, because health is {}'.format(health))
+    select_opts(child, [1,1,1,'x']);
+    food_eaten+=1
+
   select_opts(child, [2,2,3,2])
   child.expect(r'green number (\d)');
   combo[2]=child.match[1].decode('ASCII')[0]
@@ -131,7 +151,8 @@ def playthrough(num):
   
   progress_msg('We now have the full combo, which is '+''.join(combo))
   
-  select_opts(child, [1,2,1,'x',2,3,4,1,1,1,'x',2])
+  select_opts(child, [1,1+(food_collected-food_eaten),1,'x'])
+  select_opts(child, [2,3,4,1,1,1,'x',2])
   child.expect(r'Enter a four digit combination -->')
   progress_msg('Starting final boss combat')
   child.sendline(''.join(combo))
@@ -142,6 +163,7 @@ def playthrough(num):
   
   progress_msg('Completed final boss combat and won the game')
   print('Playthrough {} completed'.format(num))
+  if (verbose_progress): print()
   return(PlayProgress.WON)
 
 executor = ThreadPoolExecutor(max_workers=opts.threads)
@@ -158,3 +180,5 @@ for gamenum in range(0, opts.plays):
 print('\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
 for x in PlayProgress:
   print('{:>27} : {:3d} ({:4.1f}%)'.format(x.name, histogram[x], 100*histogram[x]/opts.plays))
+
+# vim: set ai si sw=2 ts=80:
