@@ -157,4 +157,4 @@ for gamenum in range(0, opts.plays):
 
 print('\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n')
 for x in PlayProgress:
-  print('{:>27} : {:3d}'.format(x.name, histogram[x]))
+  print('{:>27} : {:3d} ({:4.1f}%)'.format(x.name, histogram[x], 100*histogram[x]/opts.plays))
